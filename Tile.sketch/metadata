@@ -12,11 +12,11 @@
 	<array>
 		<string>Roboto-Medium</string>
 		<string>Roboto-Light</string>
-		<string>RobotoCondensed-Regular</string>
 		<string>Roboto-Regular</string>
+		<string>RobotoCondensed-Regular</string>
 	</array>
 	<key>length</key>
-	<integer>64164</integer>
+	<integer>7511238</integer>
 	<key>version</key>
 	<integer>37</integer>
 </dict>

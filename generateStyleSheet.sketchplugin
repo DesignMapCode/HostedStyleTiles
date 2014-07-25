@@ -1,0 +1,46 @@
+
+var allLayers =  [[doc currentPage] layers],
+  document_path = [[doc fileURL] path].split([doc displayName])[0],
+  document_name = [doc displayName].replace(".sketch",""),
+  target_folder = document_path + document_name; 
+ 
+function createRuleSetStr (layer) {
+  var str = '';
+  var selector = '.' + layer.name().toLowerCase().replace(/ /gi, '-');
+  var attrs = layer.CSSAttributes();
+ 
+  str += selector + ' {';
+ 
+  for (var i = 0; i < attrs.count(); i += 1) {
+    var declaration = attrs.objectAtIndex(i);
+ 
+    // Sketch adds a comment to each rule set that is the name of the layer.
+    // Don't include that.
+    if (declaration.indexOf('/*') < 0) {
+      str += '\n\t' + declaration;
+    }
+  }
+ 
+  str += '\n}';
+ 
+  return str;
+}
+ 
+function generateStyleSheet () {
+  var stylesheet = '';
+ 
+  for (var i = 0; i < allLayers.count(); i += 1) {
+    var layer = allLayers.objectAtIndex(i);
+    stylesheet += '\n\n' + createRuleSetStr(layer);
+  }
+  return stylesheet;
+}
+ 
+var styleSheetString = generateStyleSheet();
+
+save_file_from_string = function(filename, fileString) {
+    var path = [@"" stringByAppendingPathComponent:filename],
+      str = [@"" stringByAppendingString:fileString];
+    [str writeToFile:path atomically:false encoding:NSUTF8StringEncoding error:null];
+  })
+save_file_from_string(target_folder + ".css", styleSheetString);
