@@ -1,9 +1,16 @@
 
 var allLayers =  [[doc currentPage] layers],
+  artboards = [[[doc currentPage] artboards] firstObject],
   document_path = [[doc fileURL] path].split([doc displayName])[0],
   document_name = [doc displayName].replace(".sketch",""),
   target_folder = document_path + document_name; 
  
+ print(artboards);
+
+////////// Generate StyleSheet plugin from Tyler Gaw ///////////
+// https://gist.github.com/tylergaw/adc3d6ad044f5afac446
+////////////////////////////////////////////////////////////////
+
 function createRuleSetStr (layer) {
   var str = '';
   var selector = '.' + layer.name().toLowerCase().replace(/ /gi, '-');
@@ -37,6 +44,10 @@ function generateStyleSheet () {
 }
  
 var styleSheetString = generateStyleSheet();
+
+
+//////// found in framer.js and Blade plugin ////////
+/////////////////////////////////////////////////////
 
 save_file_from_string = function(filename, fileString) {
     var path = [@"" stringByAppendingPathComponent:filename],

@@ -1,0 +1,76 @@
+var textStyles = [[[doc documentData] layerTextStyles] objects],
+	layerStyles =  [[[doc documentData] layerStyles] objects],
+	existingLayers = [[doc currentPage] layers],
+	my_textLayer, my_Layer;
+
+//////// cycle through all layers until a text layer and standard layer is found ////////
+////////        then, grab the last text or standard layer in the array         ////////
+//////////////////////////////////////////////////////////////////////////////////////// 
+
+if([existingLayers count] == 0){
+	[doc showMessage:"Please Create one Text Object and one Shape Object"]
+} else {
+	for (var i=0; i < [existingLayers count]; i++) {
+		if([[existingLayers objectAtIndex:i] class] === MSTextLayer){
+		  	my_textLayer = [existingLayers objectAtIndex:i]
+		  	//print("my_textLayer = "+ my_textLayer);
+		}  else {
+			my_Layer = [existingLayers objectAtIndex:i]
+		  	//print("my_Layer = "+ my_Layer);
+		}
+	}
+}
+print("my_textLayer = "+ my_textLayer);
+print("my_Layer = "+ my_Layer);
+
+
+//////// Copy the text layer and move away from original ////////
+///////////////////////////////////////////////////////////////// 
+
+
+function copy_textLayer(textLayer){
+    var copy = [textLayer duplicate];
+    //[copy setIsVisible:false];
+    [[copy frame] addY: 100];
+    [[copy frame] addX: 100];
+    //print("in FUNCTION");
+}
+
+//////// Set the selected style to the copied layer ////////
+////////////////////////////////////////////////////////////
+//   THIS IS THE FUNCTION THAT IS NOT WORKING FOR ME
+
+function my_setStyle(thisLayer, thisStyle){
+	var my_styleLayer = [[thisLayer addLayerTextStyle] thisStyle];
+}
+//////// Iterate through text styles and apply functions ////////
+/////////////////////////////////////////////////////////////////
+if([textStyles count] == 0){
+	[doc showMessage:"Please Save a Shared Object"]
+} else {
+	for (var i=0; i < [textStyles count]; i++) {
+	  var style = [textStyles objectAtIndex:i]
+	  var my_textCopy = copy_textLayer(my_textLayer);
+	  var my_setStyle = my_setStyle(my_textCopy, style);
+	  print("my textStyles +++++" + my_textCopy);
+	}
+}
+
+
+//////// Iterate through layer styles and apply functions ////////
+/////////////////////////////////////////////////////////////////
+
+if([layerStyles count] == 0){
+	[doc showMessage:"Please Save a Shared Object"]
+} else {
+	for (var i=0; i < [layerStyles count]; i++) {
+	  var style = [layerStyles objectAtIndex:i]
+	  //print("my layerStyles ****" + style);
+	}
+}
+
+
+
+
+
+
