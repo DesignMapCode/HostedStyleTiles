@@ -1,7 +1,8 @@
+// Keyboard shortcut (cmd e)
 var textStyles = [[[doc documentData] layerTextStyles] objects],
 	layerStyles =  [[[doc documentData] layerStyles] objects],
 	existingLayers = [[doc currentPage] layers],
-	my_textLayer, my_Layer;
+	my_textLayer, my_Layer, new_Layers;
 
 //////// cycle through all layers until a text layer and standard layer is found ////////
 ////////        then, grab the last text or standard layer in the array         ////////
@@ -20,42 +21,46 @@ if([existingLayers count] == 0){
 		}
 	}
 }
-print("my_textLayer = "+ my_textLayer);
-print("my_Layer = "+ my_Layer);
+//print("my_textLayer = "+ my_textLayer);
+//print("my_Layer = "+ my_Layer);
 
 
 //////// Copy the text layer and move away from original ////////
 ///////////////////////////////////////////////////////////////// 
 
 
-function copy_textLayer(textLayer){
+function copy_textLayer(textLayer, count){
     var copy = [textLayer duplicate];
     //[copy setIsVisible:false];
     [[copy frame] addY: 100];
     [[copy frame] addX: 100];
-    //print("in FUNCTION");
+    // - NEED TO CREATE AN ARRAY HERE AND ADD THE NEW COPIES TO IT - //
+    // addObject to array
+    return copy;
 }
 
 //////// Set the selected style to the copied layer ////////
 ////////////////////////////////////////////////////////////
-//   THIS IS THE FUNCTION THAT IS NOT WORKING FOR ME
 
-function my_setStyle(thisLayer, thisStyle){
-	var my_styleLayer = [[thisLayer addLayerTextStyle] thisStyle];
+function set_textStyle(thisLayer, thisStyle){
+	[[[thisLayer style] textStyle] setAttributes: thisStyle]
+	//print("var thisStyle +++++" + thisStyle);
+	//print("var thisLayer +++++" + thisLayer);
 }
+
 //////// Iterate through text styles and apply functions ////////
 /////////////////////////////////////////////////////////////////
+
 if([textStyles count] == 0){
 	[doc showMessage:"Please Save a Shared Object"]
 } else {
 	for (var i=0; i < [textStyles count]; i++) {
-	  var style = [textStyles objectAtIndex:i]
+	  var my_style = [[[[textStyles objectAtIndex:i] style] textStyle] attributes]
 	  var my_textCopy = copy_textLayer(my_textLayer);
-	  var my_setStyle = my_setStyle(my_textCopy, style);
-	  print("my textStyles +++++" + my_textCopy);
+	  set_textStyle(my_textCopy, my_style);
+	  print("var my_textCopy +++++ " + my_textCopy);
 	}
 }
-
 
 //////// Iterate through layer styles and apply functions ////////
 /////////////////////////////////////////////////////////////////
