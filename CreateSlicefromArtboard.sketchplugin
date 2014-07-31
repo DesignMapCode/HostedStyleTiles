@@ -1,0 +1,11 @@
+var artboard = [[doc currentPage] currentArtboard],
+artboardFrame = [artboard frame],
+slice = [MSSliceLayer new];
+
+[[slice frame] setX:0];
+[[slice frame] setY:0];
+[[slice frame] setWidth:[artboardFrame width]];
+[[slice frame] setHeight:[artboardFrame height]];
+
+[artboard addSlice:slice];
+[[doc currentView] refresh];
