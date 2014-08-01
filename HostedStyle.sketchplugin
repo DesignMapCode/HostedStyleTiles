@@ -1,8 +1,13 @@
 // Keyboard shortcut (cmd e)
+
 var textStyles = [[[doc documentData] layerTextStyles] objects],
 	layerStyles =  [[[doc documentData] layerStyles] objects],
 	existingLayers = [[doc currentPage] layers],
-	my_textLayer, my_Layer, new_Layers;
+	new_Layers = [], new_Shapes = [], shapesAndText = [],
+	my_textLayer, my_layer,
+	document_path = [[doc fileURL] path].split([doc displayName])[0],
+	document_name = [doc displayName].replace(".sketch",""),
+	target_folder = document_path + document_name; 
 
 //////// cycle through all layers until a text layer and standard layer is found ////////
 ////////        then, grab the last text or standard layer in the array         ////////
@@ -15,10 +20,10 @@ if([existingLayers count] == 0){
 		if([[existingLayers objectAtIndex:i] class] === MSTextLayer){
 		  	my_textLayer = [existingLayers objectAtIndex:i]
 		  	//print("my_textLayer = "+ my_textLayer);
-		}  else {
-			my_Layer = [existingLayers objectAtIndex:i]
-		  	//print("my_Layer = "+ my_Layer);
-		}
+		} else {
+			my_layer = [existingLayers objectAtIndex:i]
+		  	//print("my_layer = "+ my_layer);	
+		} 
 	}
 }
 //print("my_textLayer = "+ my_textLayer);
@@ -29,21 +34,46 @@ if([existingLayers count] == 0){
 ///////////////////////////////////////////////////////////////// 
 
 
-function copy_textLayer(textLayer, count){
+function copy_textLayer(textLayer, name){
     var copy = [textLayer duplicate];
+    [copy setName: name];
     //[copy setIsVisible:false];
     [[copy frame] addY: 100];
     [[copy frame] addX: 100];
-    // - NEED TO CREATE AN ARRAY HERE AND ADD THE NEW COPIES TO IT - //
-    // addObject to array
+    new_Layers.push(copy);
     return copy;
 }
 
-//////// Set the selected style to the copied layer ////////
-////////////////////////////////////////////////////////////
+//////// Copy the shape layer and move away from original ////////
+///////////////////////////////////////////////////////////////// 
+
+
+function copy_shapeLayer(shapeLayer, name){
+    //print("shapeLayer " + shapeLayer);
+    var copy = [shapeLayer duplicate];
+    [copy setName: name];
+    //[copy setIsVisible:false];
+    [[copy frame] addY: 100];
+    [[copy frame] addX: 100];
+    new_Shapes.push(copy);
+    //print("new_Shapes length = " + new_Shapes.length());
+    return copy;
+}
+
+//////// Set the selected textStyle to the copied textLayer ////////
+///////////////////////////////////\\\\\\\\/////////////////////////
 
 function set_textStyle(thisLayer, thisStyle){
 	[[[thisLayer style] textStyle] setAttributes: thisStyle]
+	//print("var thisStyle +++++" + thisStyle);
+	//print("var thisLayer +++++" + thisLayer);
+}
+
+//////// Set the selected shapeStyle to the copied shapeLayer ////////
+///////////////////////////////////\\\\\\\\/////////////////////////
+
+function set_layerStyle(thisLayer, thisStyle){
+	[thisLayer setStyle: thisStyle]
 	//print("var thisStyle +++++" + thisStyle);
 	//print("var thisLayer +++++" + thisLayer);
 }
@@ -52,13 +82,14 @@ function set_textStyle(thisLayer, thisStyle){
 /////////////////////////////////////////////////////////////////
 
 if([textStyles count] == 0){
-	[doc showMessage:"Please Save a Shared Object"]
+	[doc showMessage:"Please Save a Text Style"]
 } else {
 	for (var i=0; i < [textStyles count]; i++) {
 	  var my_style = [[[[textStyles objectAtIndex:i] style] textStyle] attributes]
-	  var my_textCopy = copy_textLayer(my_textLayer);
+	  var my_styleName = [[textStyles objectAtIndex:i] name]
+	  var my_textCopy = copy_textLayer(my_textLayer, my_styleName);
 	  set_textStyle(my_textCopy, my_style);
-	  print("var my_textCopy +++++ " + my_textCopy);
+	  //print("name +++++ " + [[textStyles objectAtIndex:i] name]);
 	}
 }
 
@@ -66,15 +97,94 @@ if([textStyles count] == 0){
 /////////////////////////////////////////////////////////////////
 
 if([layerStyles count] == 0){
-	[doc showMessage:"Please Save a Shared Object"]
+	[doc showMessage:"Please Save a Layer Style "]
 } else {
 	for (var i=0; i < [layerStyles count]; i++) {
-	  var style = [layerStyles objectAtIndex:i]
-	  //print("my layerStyles ****" + style);
+  		var my_style = [[layerStyles objectAtIndex:i] style]
+  		var my_styleName = [[layerStyles objectAtIndex:i] name]
+		var my_shapeCopy = copy_shapeLayer(my_layer, my_styleName);
+		set_layerStyle(my_shapeCopy, my_style);
+  		 
 	}
 }
 
+//////////// Combine Arrays ////////////
+////////////////////////////////////////
 
+function combineArrays(){
+	shapesAndText = new_Layers.concat(new_Shapes);
+	print(" shapesAndText = " + shapesAndText);
+	//print(JSON.stringify(shapesAndText));
+	//print(JSON.stringify(new_Layers));
+
+	//return shapesAndText;
+}
+
+
+combineArrays();
+
+
+
+
+/////////////////// Generate CSS for each //////////////////////
+////////////////////////////////////////////////////////////////
+////////// Generate StyleSheet plugin from Tyler Gaw ///////////
+// https://gist.github.com/tylergaw/adc3d6ad044f5afac446
+////////////////////////////////////////////////////////////////
+
+function createRuleSetStr (layer) {
+  var str = '';
+  var selector = '.' + layer.name().toLowerCase().replace(/ /gi, '-');
+  var attrs = layer.CSSAttributes();
+ 
+  str += selector + ' {';
+ 
+  for (var i = 0; i < attrs.count(); i += 1) {
+    var declaration = attrs.objectAtIndex(i);
+ 
+    // Sketch adds a comment to each rule set that is the name of the layer.
+    // Don't include that.
+    if (declaration.indexOf('/*') < 0) {
+      str += '\n\t' + declaration;
+    }
+  }
+ 
+  str += '\n}';
+ 
+  return str;
+}
+ 
+function generateStyleSheet () {
+	
+
+	var stylesheet = '';
+ 
+	for (var i=0; i < [shapesAndText count]; i++) {
+		var layer = [shapesAndText objectAtIndex:i];
+		stylesheet += '\n\n' + createRuleSetStr(layer);
+	}
+	return stylesheet;
+}
+ 
+var styleSheetString = generateStyleSheet();
+
+/////////////////// Save CSS file ///////////////////
+/////////////////////////////////////////////////////
+//////// found in framer.js and Blade plugin ////////
+/////////////////////////////////////////////////////
+
+save_file_from_string = function(filename, fileString) {
+    var path = [@"" stringByAppendingPathComponent:filename],
+      str = [@"" stringByAppendingString:fileString];
+    [str writeToFile:path atomically:false encoding:NSUTF8StringEncoding error:null];
+  })
+save_file_from_string(target_folder + ".css", styleSheetString);
+
+
+//Enter generate CSS code here
+
+//////// Delete newly created text and layer styles ////////
+////////////////////////////////////////////////////////////
 
 
 
