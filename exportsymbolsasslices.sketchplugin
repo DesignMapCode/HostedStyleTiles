@@ -1,0 +1,37 @@
+var Symbols = [[[doc documentData] layerSymbols] objects],
+    frame= [[[doc documentData] layerSymbols] MSSharedLayer];
+    
+    
+
+    // artboardFrame = [artboard frame],
+    // new slice layer   
+    //slice = [MSSliceLayer new];
+
+    /* 
+    existingSymbols = [[doc currentPage] layerSymbols],
+    my_Symbol, my_Layer;; 
+    */
+
+    print("symbols " + Symbols);
+    print("artboard" + artboard);
+    // print("artboard" + artboard);
+    //print("existingSymbols " + layerSymbols )
+
+
+
+
+/*
+if([Symbols count] == 0){
+  [doc showMessage:"We were unable to find any symbols in your document."]
+} else {
+  for (var i=0; i < [Symbols count]; i++) {
+    if([[existingLayers objectAtIndex:i] class] === MSTextLayer){
+        my_textLayer = [existingLayers objectAtIndex:i]
+        //print("my_textLayer = "+ my_textLayer);
+    }  else {
+      my_Layer = [existingLayers objectAtIndex:i]
+        //print("my_Layer = "+ my_Layer);
+    }
+  }
+}
+*/
