@@ -113,7 +113,7 @@ if([layerStyles count] == 0){
 
 function combineArrays(){
 	shapesAndText = new_Layers.concat(new_Shapes);
-	print(" shapesAndText = " + shapesAndText);
+	print(" shapesAndText = " + shapesAndText.length);
 	//print(JSON.stringify(shapesAndText));
 	//print(JSON.stringify(new_Layers));
 
@@ -159,8 +159,9 @@ function generateStyleSheet () {
 
 	var stylesheet = '';
  
-	for (var i=0; i < [shapesAndText count]; i++) {
-		var layer = [shapesAndText objectAtIndex:i];
+	for (var i=0; i < shapesAndText.length; i++) {
+		//print("yup");
+		var layer = shapesAndText[i];
 		stylesheet += '\n\n' + createRuleSetStr(layer);
 	}
 	return stylesheet;
